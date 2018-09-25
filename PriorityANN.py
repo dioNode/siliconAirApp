@@ -1,13 +1,6 @@
 import requests
 import json
-
-FLIGHT_ROUTE_STATUS = "https://cdn.fs.agorize.com/yHrjo4lSPmvLD6DMe9wv"
-
-trainInput = [["firstName", "lastName", "passengerType", 3, "cabinClass"],
-              ["Dion", "Lao", "Infant", 2, "Business"]]
-
-trainOutput = [1, 0]
-
+import csv
 
 class PriorityANN:
     """ANN to use for determining priority listing"""
@@ -15,24 +8,35 @@ class PriorityANN:
         print("Initialising...")
 
     def train(self, api_url):
-        print("Training on "+api_url)
         azure_cv_endpoint = 'INSERT YOUR ENDPOINT URL HERE'
         azure_cv_key = 'INSERT YOUR KEY HERE'
 
-        flightschedule = self.requestData("/flightschedule")
-        print(flightschedule)
+        flightschedule = self.requestData(
+            "https://apigw.singaporeair.com/appchallenge/api/flight/passenger",
+            "{ \"flightNo\": \"SQ890\", \"flightDate\": \"2018-07-20\" }"
+        )
+        passengerList = flightschedule.get("response").get("passengerList")
+        flightSummary = flightschedule.get("response").get("loadSummary")
+        print(flightSummary)
+        print(passengerList[0])
 
 
-    def requestData(self, parameter):
-        headers = {"content-type": "application/json",
-                   "apikey": "aghk73f4x5haxeby7z24d2rc"}
+    def requestData(self, url, payload):
+        headers = {
+            'content-type': "application/json",
+            'apikey': "aghk73f4x5haxeby7z24d2rc",
+            'cache-control': "no-cache",
+            'postman-token': "53cd8502-4b4b-54d8-c2de-8636e549ba75"
+        }
 
-        # Make a get request to get the latest position of the international space station from the opennotify api.
-        response = requests.get(FLIGHT_ROUTE_STATUS+parameter, headers=headers)
+        response = requests.request("POST", url, data=payload, headers=headers)
+        data = json.loads(response.text)
+        return data
 
-        # Print the status code of the response.
-        if response.status_code == 200:
-            data = json.loads(response.content.decode('utf-8'))
-            return data
-        else:
-            return {}
+    def writeCSV(self, data):
+        # with open('dict.csv', 'wb') as csv_file:
+        #     writer = csv.writer(csv_file)
+        #     for key, value in data.items():
+        #         writer.writerow([key, value])
+        for key, value in data.get("response").items():
+            print(key, value)
