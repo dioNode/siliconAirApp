@@ -15,10 +15,13 @@ class PriorityANN:
             "https://apigw.singaporeair.com/appchallenge/api/flight/passenger",
             "{ \"flightNo\": \"SQ890\", \"flightDate\": \"2018-07-20\" }"
         )
-        passengerList = flightschedule.get("response").get("passengerList")
-        flightSummary = flightschedule.get("response").get("loadSummary")
-        print(flightSummary)
-        print(passengerList[0])
+        self.passengerList = flightschedule.get("response").get("passengerList")
+        self.flightSummary = flightschedule.get("response").get("loadSummary")
+        for passenger in self.passengerList:
+            passenger["willingEvictor"] = True if passenger.get("bookingClass") == "Business" else False
+
+        self.writeCSV("passengerDetails.csv")
+        print(self.passengerList)
 
 
     def requestData(self, url, payload):
@@ -33,10 +36,11 @@ class PriorityANN:
         data = json.loads(response.text)
         return data
 
-    def writeCSV(self, data):
-        # with open('dict.csv', 'wb') as csv_file:
-        #     writer = csv.writer(csv_file)
-        #     for key, value in data.items():
-        #         writer.writerow([key, value])
-        for key, value in data.get("response").items():
-            print(key, value)
+    def writeCSV(self, filename):
+        with open(filename, 'w', newline='') as csvfile:
+            fieldnames = self.passengerList[0].keys()
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+            writer.writeheader()
+            for passenger in self.passengerList:
+                writer.writerow(passenger)
