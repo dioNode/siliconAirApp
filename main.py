@@ -13,16 +13,14 @@ def main():
         else:
             print("Sorry that is not an option")
 
-    priorityANN.setFlight("SQ890")
-    priorityANN.evaluate("SQ890")
 
 def generateCSVModel(priorityANN):
     priorityANN.setFlight("SQ890")
     priorityANN.writeCSV("passengerDetails.csv")
 
 def showFlightEvictors(priorityANN):
-    flightNo = input("Which flight would you like to select? \n The available flights are [SQ890]\n").upper()
-    while flightNo not in ["SQ890"]:
+    flightNo = input("Which flight would you like to select? \n The available flights are [SQ890, SQ494]\n").upper()
+    while flightNo not in ["SQ890", "SQ494"]:
         print("Sorry, flight "+ flightNo + " does not exist.")
         flightNo = input("Which flight would you like to select? \n The available flights are [SQ890]\n")
     priorityANN.evaluate(flightNo)
