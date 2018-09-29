@@ -5,6 +5,7 @@ Team Members: Dion Lao, Nabil Rahmat, Anders Kong, Sean Ang
 The Silicon Air application comes in two parts. The main application is a Python command line model used to predict which predict which passenger will be least distressed if they were to be forceably evicted from their flight. Since this is a delicate subject, we will rely on machine learning, rather than human intuition to pick the unlucky passenger. However, to do this, we will need lots of data on which participants are willing - hence the second part of the project.
 
 The second project is a mobile application attached to the Singapore Airlines application. Since this is not our core product, a full stacked application was not built. However a mockup was designed to show the user flow from the passenger's point of view. The key point here is to reframe being 'evicted' into a 'prize' for the participants involved. 
+https://xd.adobe.com/view/be5f46d0-c528-4dd1-46f1-17f4bb5b72bc-c86e/
 
 How to Use:
 To run the Python Application, you will need to open 'main.py' through Python using a terminal. From there, you can simply follow the instructions.
