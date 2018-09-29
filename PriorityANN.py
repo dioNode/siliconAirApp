@@ -1,42 +1,59 @@
 import requests
 import json
 import csv
-import tensorflow as tf
-from sklearn.model_selection import train_test_split
+import urllib
 
 class PriorityANN:
     """ANN to use for determining priority listing"""
     def __init__(self):
         print("Initialising...")
-        self.desiredParameters = ['firstName', 'lastName', 'bookingClass', 'checkInStatus', 'willingEvictor']
+        self.desiredParameters = ['firstName', 'lastName', 'bookingClass', 'email', 'checkInStatus', 'willingEvictor']
+        self.passengerList = []
+
+    def setFlight(self, flightNo):
+        self.passengerList = self._getPassengerDetails(flightNo)
+        self.writeCSV("passengerDetails.csv")
 
     def train(self, api_url):
-        azure_cv_endpoint = 'INSERT YOUR ENDPOINT URL HERE'
-        azure_cv_key = 'INSERT YOUR KEY HERE'
+        # do nothing
+        print("nothing")
 
-        self.passengerList = self._getPassengerDetails("SQ890")
 
-        #self.writeCSV("passengerDetails.csv")
-        
-#        mnist = tf.keras.datasets.mnist
-#        print(mnist.load_data()[0][0].shape)
-		
-#        (x_train, y_train),(x_test, y_test) = mnist.load_data()
-#        x_train, x_test = x_train / 255.0, x_test / 255.0
-#		
-#        model = tf.keras.models.Sequential([
-#			  tf.keras.layers.Flatten(),
-#			  tf.keras.layers.Dense(512, activation=tf.nn.relu),
-#			  tf.keras.layers.Dropout(0.2),
-#			  tf.keras.layers.Dense(10, activation=tf.nn.softmax)
-#			  ])
-#        model.compile(optimizer='adam',
-#		              loss='sparse_categorical_crossentropy',
-#		              metrics=['accuracy'])
-#		
-#        model.fit(x_train, y_train, epochs=5)
-#        model.evaluate(x_test, y_test)
+    def evaluate(self):
+        data = {
 
+            "Inputs": {
+
+                "input1":
+                    {
+                        "ColumnNames": ["firstName", "lastName", "bookingClass", "KFTier", "email", "checkInStatus",
+                                        "willingEvictor"],
+                        "Values": [["Dion", "Lao", "Business", "EGTP", "dion_lao@hotmail.com", "Checked In", "0"],
+                                   ["Hello", "Mate", "Economy", "EGTP", "coolios@hotmail.com", "Checked In", "0"], ]
+                    }, },
+            "GlobalParameters": {
+            }
+        }
+
+        body = str.encode(json.dumps(data))
+
+        url = 'https://ussouthcentral.services.azureml.net/workspaces/8334317b4f7a4e8ba1058977846f6f84/services/1594f6de0f8c42abbd0ce53bcf9a712f/execute?api-version=2.0&details=true'
+        api_key = '42zafbAj/h0j6xwLp6hiEgllwnm4S4LtNKwI9FmyQoHTN0pUEKQQOYeAkb+1N2c+i65bLR6con1LjtYUdDNzBQ=='
+        headers = {'Content-Type': 'application/json', 'Authorization': ('Bearer ' + api_key)}
+
+        req = urllib.request.Request(url, body, headers)
+
+        try:
+            response = urllib.request.urlopen(req)
+
+            # If you are using Python 3+, replace urllib2 with urllib.request in the above code:
+            # req = urllib.request.Request(url, body, headers)
+            # response = urllib.request.urlopen(req)
+
+            result = response.read()
+            print(result)
+        except urllib.error.HTTPError:
+            print("The request failed with status code: ")
 
 
     def requestData(self, url, payload):
@@ -68,24 +85,24 @@ class PriorityANN:
         passengerList = flightschedule.get("response").get("passengerList")
         flightSummary = flightschedule.get("response").get("loadSummary")
         for passenger in passengerList:
-            passenger["willingEvictor"] = True if passenger.get("bookingClass") == "Business" else False
-
-        # Process data to get rid of unnecessary data
-        passengerList = self._removeUnnecessaryFields(passengerList)
+            passenger["willingEvictor"] = False if passenger.get("bookingClass") == "Business" else True
 
         return passengerList
 
-    def _removeUnnecessaryFields(self, passengerList):
-        for idx, passenger in enumerate(passengerList):
-            tempPassenger = {}
-            for param in self.desiredParameters:
-                tempPassenger[param] = passenger.get(param)
-            passengerList[idx] = tempPassenger
-        return passengerList
-    
-        
-        
-        
-        
-        
-        
+    def _getBaggageDetails(self):
+
+        url = "https://apigw.singaporeair.com/appchallenge/api/flightroutestatus"
+
+        payload = "{\"originAirportCode\": \"SIN\", \"destinationAirportCode\": \"DXB\", \"scheduledDepartureDate\": \"2018-08-15\"}"
+        headers = {
+            'content-type': "application/json",
+            'apikey': "aghk73f4x5haxeby7z24d2rc",
+            'cache-control': "no-cache",
+            'postman-token': "9a6ab98c-9f7f-cf6d-d081-100676469fad"
+        }
+
+        response = requests.request("POST", url, data=payload, headers=headers)
+
+        print(response.text)
+        return response.text
+
